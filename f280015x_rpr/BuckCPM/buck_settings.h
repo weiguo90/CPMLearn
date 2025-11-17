@@ -15,7 +15,7 @@ extern "C" {
 //
 // Lab numbers defined in buck_user_settings.h
 //
-#define BUCK_LAB_NUMBER                    1
+#define BUCK_LAB_NUMBER                    3
 
 //
 // PWM Switching frequency and control update ratio
@@ -35,8 +35,11 @@ extern "C" {
 #define BUCK_VIN_MAX_SENSE_V               ((float32_t)30.3) //((float32_t)13.3)
 #define BUCK_VOUT_NOM_V                    ((float32_t) 2)
 #define BUCK_VOUT_MAX_SENSE_V                ((float32_t)  13.1951)                  // ((float32_t) 6.7)
-#define BUCK_IL_MAX_SENSE_A                ((float32_t) 7.52)
-#define BUCK_ILOAD_NOM_A                   ((float32_t) 1.3)
+#define BUCK_IL_MAX_SENSE_A                ((float32_t) 0.080566406250000*4096)                 //7.52)
+#define BUCK_ILOAD_NOM_A                   ((float32_t) 50)
+
+//FLOAT32 factor_i_L1=0.080566406250000;//0.161050545;             for B0.1
+
 
 //
 // CMPSS RAMPMAXREF register value (only used for PCMC)

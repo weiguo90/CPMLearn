@@ -432,7 +432,7 @@ uint16_t BUCK_HAL_setOverCurrentTripLimit(float32_t tripLimit_A)
     {
         dacVal = (uint16_t)(BUCK_CMPSSDAC_CODES *
                             tripLimit_A /
-                            BUCK_IL_MAX_SENSE_A);
+                            BUCK_IL_MAX_SENSE_A + 2025);
     }
 
     //

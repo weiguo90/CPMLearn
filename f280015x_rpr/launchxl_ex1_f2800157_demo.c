@@ -394,7 +394,7 @@ void initADCSOCs(void)
 
 
 
-uint16_t EN91=0;
+uint16_t BuckOn=0,PreBuckOn=0;;
 //
 // Main
 //
@@ -633,14 +633,23 @@ void main()
         //
         (*Alpha_State_Ptr)();   // jump to an Alpha state (A0,B0,...)
 
-        if ( EN91)
+        if (( BuckOn==1) && (PreBuckOn==0) )
         {
+            BUCK_vOutSetRef_Volts=0;
+            BUCK_vOutSlewed_pu=0;
             BuckEnablePWM();
+        }
+        else if(( BuckOn==0) && (PreBuckOn==1)  )
+        {
+            BUCK_vOutSetRef_Volts=0;
+            BUCK_vOutSlewed_pu=0;
+            BuckPWMOff();
         }
         else
         {
-            BuckPWMOff();
+
         }
+        PreBuckOn=BuckOn;
 
         // BuckOn1();
 //        //

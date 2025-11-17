@@ -416,6 +416,10 @@ extern "C" {
 #else
     #define BUCK_SFRA_ENABLED              false
 #endif
+
+#undef BUCK_SFRA_ENABLED
+#define BUCK_SFRA_ENABLED false
+
 #if(BUCK_SFRA_ENABLED == true)
     #define BUCK_SFRA_ISR_FREQ             BUCK_DRV_EPWM_SWITCHING_FREQUENCY
     #define BUCK_SFRA_FREQ_START           ((float32_t)100)
@@ -445,7 +449,7 @@ extern "C" {
 // Range limits for actuation
 //
 #define BUCK_DUTY_SET_MIN_PU               ((float32_t)0.00)
-#define BUCK_DUTY_SET_MAX_PU               ((float32_t)0.45)
+#define BUCK_DUTY_SET_MAX_PU               ((float32_t)0.25)  //0.25
 #define BUCK_DAC_SET_MIN_PU                ((float32_t)0.00)
 #define BUCK_DAC_SET_MAX_PU                ((float32_t)1.00)
 
@@ -518,7 +522,7 @@ extern "C" {
     #define BUCK_USER_DEFAULT_LOAD_CONT        1
 #endif
 
-#define BUCK_USER_DEFAULT_TRIP_A           ((float32_t)BUCK_ILOAD_NOM_A * 4)
+#define BUCK_USER_DEFAULT_TRIP_A           ((float32_t)60)        //BUCK_ILOAD_NOM_A * 4)
 
 //
 // Heart beat LED on board

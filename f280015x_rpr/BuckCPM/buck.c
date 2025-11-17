@@ -436,7 +436,7 @@ void BUCK_updateDutySlewed(void)
 void BUCK_updateDacTarget(void)
 {
     #if(BUCK_CTL_MODE == BUCK_CTL_MODE_PCMC)
-        BUCK_dacTarget_pu = BUCK_dacSetRef_pu;
+        BUCK_dacTarget_pu = BUCK_dacSetRef_pu+2025.0/4096 ;
 
         if(BUCK_dacTarget_pu > BUCK_DAC_SET_MAX_PU)
         {
