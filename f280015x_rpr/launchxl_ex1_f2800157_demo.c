@@ -8,7 +8,7 @@
 //! <h1> F2800157 LaunchPad Out of Box Demo Example </h1>
 //!
 //! This program is the demo program that comes pre-loaded on the F2800157
-//! LaunchPad development kit. The program starts by flashing the two user
+    
 //! LEDs. After a few seconds the LEDs stop flashing and the device starts
 //! sampling ADCINA6 once a second. If the sample is greater than midscale
 //! the red LED on the board is lit, while if it is lower the green LED is lit.
@@ -71,7 +71,12 @@
 #include "launchxl_ex1_ti_ascii.h"
 #include "driverlib.h"
 #include "device.h"
+#include <bitfield_support/f280015x_DEVICE.h>
 #include <bitfield_support/f280015x_pievect.h>
+#include <bitfield_support/f280015x_epwm.h>
+//#include "BSW_MCAL_PWM.h"
+#include "f280015x_epwm_defines.h"
+
 //#include <bitfield_support/f280015x_device.h>     // f280015x Headerfile Include File
 #include <buck_hal.h>
 #include <buck.h>
@@ -409,7 +414,11 @@ void main()
     // Disable pin locks and enable internal pullups.
     //
     Device_initGPIO();
-    BUCK_HAL_setupSyncBuckPinsGpio();
+     // Switch actuation pins over: enable high-side as ePWM, keep low-side as GPIO
+     // This disables synchronous rectification while allowing the high-side to be driven by ePWM
+     BUCK_HAL_setupSyncBuckPinsEpwm();
+    // Ensure low-side is GPIO (drive low) to disable synchronous rectification
+    BUCK_HAL_setLowSideGpio();
     BUCK_HAL_setupActiveLoadPinGPIO();
 
 
@@ -612,7 +621,8 @@ void main()
 //    clearTextBox();
 //
 //    currentSample = sampleADC();
-
+    BuckPWMOff();
+    GPIO_writePin(EN91_GPIO, 1);
     //
     // Main program loop - continually sample temperature
     //
@@ -622,7 +632,17 @@ void main()
         // Background state machine entry & exit point
         //
         (*Alpha_State_Ptr)();   // jump to an Alpha state (A0,B0,...)
-        GPIO_writePin(EN91_GPIO, EN91);
+
+        if ( EN91)
+        {
+            BuckEnablePWM();
+        }
+        else
+        {
+            BuckPWMOff();
+        }
+
+        // BuckOn1();
 //        //
 //        // Sample ADCINA6
 //        //
@@ -910,3 +930,5 @@ void C3(void)
 //
 // End of File
 //
+
+
