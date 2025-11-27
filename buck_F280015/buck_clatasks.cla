@@ -1,0 +1,43 @@
+//#############################################################################
+//
+// FILE:   buck_clatask.cla
+//
+// TITLE:  CLA Task file
+//
+//#############################################################################
+// $TI Release: TIDM_DC_DC_BUCK v2.01.05.00 $
+// $Release Date: Fri Aug 22 11:50:37 CDT 2025 $
+// $Copyright:
+// Copyright (C) 2025 Texas Instruments Incorporated - http://www.ti.com/
+//
+// ALL RIGHTS RESERVED
+// $
+//#############################################################################
+
+#include "buck.h"
+
+//
+// Task 1 - Title Here
+//
+// Description: Description/steps here.
+//
+//-----------------------------------------------------------------------------
+//
+__attribute__((interrupt))  void Cla1Task1 ( void )
+{
+
+    #if(CLA_DEBUG == 1)
+    __mdebugstop();
+    #endif
+    #ifdef BUCK_CONTROL_RUNNING_ON_CLA
+        BUCK_runIsr();
+    #endif
+    #if(CLA_DEBUG == 1)
+        __mdebugstop();
+    #endif
+
+}
+
+//
+// End of File
+//
