@@ -52,6 +52,9 @@ extern "C"
 {
 #endif
 
+// Forward declaration of global receive counter (defined in application)
+extern volatile uint32_t g_scia_rx_count;
+
 //*****************************************************************************
 //
 //! \addtogroup sci_api SCI
@@ -940,93 +943,34 @@ SCI_isSpaceAvailableNonFIFO(uint32_t base)
 //! \b SCI_FIFO_TX4, ..., or \b SCI_FIFO_TX16
 //
 //*****************************************************************************
-static inline SCI_TxFIFOLevel
-SCI_getTxFIFOStatus(uint32_t base)
-{
-    //
-    // Check the arguments.
-    //
-    ASSERT(SCI_isBaseValid(base));
-
-    //
-    // Get the current FIFO status
-    //
-    return((SCI_TxFIFOLevel)((HWREGH(base + SCI_O_FFTX) & SCI_FFTX_TXFFST_M) >>
-                             SCI_FFTX_TXFFST_S));
-}
-
-//*****************************************************************************
 //
-//! Get the receive FIFO status
+//! Waits for a character from the specified port when the FIFO enhancement
+//! is not enabled.
 //!
 //! \param base is the base address of the SCI port.
 //!
-//! This functions gets the current number of words in the receive FIFO.
+//! Gets a character from the receive buffer for the specified port.  If there
+//! are no characters available, this function waits until a character is
+//! received before returning.
 //!
-//! \return Returns the current number of words in the receive FIFO specified
-//! as one of the following:
-//! \b SCI_FIFO_RX0, \b SCI_FIFO_RX1, \b SCI_FIFO_RX2, \b SCI_FIFO_RX3
-//! \b SCI_FIFO_RX4, ..., or \b SCI_FIFO_RX16
-//
+//! \return Returns the character read from the specified port as \e uint16_t
 //*****************************************************************************
-static inline SCI_RxFIFOLevel
-SCI_getRxFIFOStatus(uint32_t base)
+static inline uint16_t
+SCI_readCharBlockingNonFIFO(uint32_t base)
 {
-    //
     // Check the arguments.
-    //
     ASSERT(SCI_isBaseValid(base));
 
-    //
-    // Get the current FIFO status
-    //
-    return((SCI_RxFIFOLevel)((HWREGH(base + SCI_O_FFRX) & SCI_FFRX_RXFFST_M) >>
-                             SCI_FFRX_RXFFST_S));
-}
-
-//*****************************************************************************
-//
-//! Determines whether the SCI transmitter is busy or not.
-//!
-//! \param base is the base address of the SCI port.
-//!
-//! Allows the caller to determine whether all transmitted bytes have cleared
-//! the transmitter hardware when the FIFO is not enabled.  When the FIFO is
-//! enabled, this function allows the caller to determine whether there is any
-//! data in the FIFO.
-//!
-//! Without the FIFO enabled, if \b false is returned, the transmit buffer and
-//! shift registers are empty and the transmitter is not busy. With the FIFO
-//! enabled, if \b false is returned, the FIFO is empty.  This does not
-//! necessarily mean that the transmitter is not busy.  The empty FIFO does not
-//! reflect the status of the transmitter shift register. The FIFO may be empty
-//! while the transmitter is still transmitting data.
-//!
-//! \return Returns \b true if the SCI is transmitting or \b false if
-//! transmissions are complete.
-//
-//*****************************************************************************
-static inline bool
-SCI_isTransmitterBusy(uint32_t base)
-{
-    //
-    // Check the argument.
-    //
-    ASSERT(SCI_isBaseValid(base));
-
-    //
-    // Check if FIFO enhancement is enabled.
-    //
-    if(SCI_isFIFOEnabled(base))
+    // Wait until a character is available in the receive buffer.
+    while(!SCI_isDataAvailableNonFIFO(base))
     {
-        //
-        // With FIFO enhancement, determine if the SCI is busy.
-        //
-        return(((HWREGH(base + SCI_O_FFTX) & SCI_FFTX_TXFFST_M) !=
-                 0U) ? true : false);
     }
-    else
-    {
+
+    // Read the value from RXBUF, increment app-visible counter and return.
+    uint16_t val = (uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+    g_scia_rx_count++;
+    return val;
+}
         //
         // Without FIFO enhancement, determine if the SCI is busy.
         // Check if the transmit buffer and shift register empty.
@@ -1225,7 +1169,16 @@ SCI_readCharBlockingFIFO(uint32_t base)
 //! is not enabled.
 //!
 //! \param base is the base address of the SCI port.
-//!
+    {
+        uint16_t val = (uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+        g_scia_rx_count++;
+        return val;
+    }
+        uint16_t val = (uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M);
+        // If application provides the counter symbol, increment it for visibility
+        g_scia_rx_count++;
+        return val;
+    }
 //! Gets a character from the receive buffer for the specified port.  If there
 //! is no characters available, this function waits until a character is
 //! received before returning.
@@ -1267,6 +1220,39 @@ SCI_readCharBlockingNonFIFO(uint32_t base)
 //!
 //! \return Returns \e uin16_t which is read from the receive buffer.
 //
+//*****************************************************************************
+//
+//! Waits for a character from the specified port when the FIFO enhancement
+//! is not enabled.
+//!
+//! \param base is the base address of the SCI port.
+//!
+//! Gets a character from the receive buffer for the specified port.  If there
+//! are no characters available, this function waits until a character is
+//! received before returning.
+//!
+//! \return Returns the character read from the specified port as \e uint16_t.
+//*****************************************************************************
+static inline uint16_t
+SCI_readCharBlockingNonFIFO(uint32_t base)
+{
+    //
+    // Check the arguments.
+    //
+    ASSERT(SCI_isBaseValid(base));
+
+    //
+    // Wait until a character is available in the receive FIFO.
+    //
+    while(!SCI_isDataAvailableNonFIFO(base))
+    {
+    }
+
+    //
+    // Return the character from the receive buffer.
+    //
+    return((uint16_t)(HWREGH(base + SCI_O_RXBUF) & SCI_RXBUF_SAR_M));
+}
 //*****************************************************************************
 static inline uint16_t
 SCI_readCharNonBlocking(uint32_t base)

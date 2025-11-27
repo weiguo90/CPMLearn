@@ -61,6 +61,8 @@
 // Globals
 //
 uint16_t deviceOpen = 0;
+// Counter for number of received SCI characters (watchable in debugger)
+volatile uint32_t g_scia_rx_count = 0U;
 
 //
 // Functions
@@ -104,18 +106,35 @@ int SCI_close(int dev_fd)
 int SCI_read(int dev_fd, char * buf, unsigned count)
 {
     uint16_t readCount = 0;
-    uint16_t * bufPtr = (uint16_t *) buf;
+    uint8_t * bufPtr = (uint8_t *) buf;
     
     if(count == 0)
     {
         return (0);
     }
     
-    while((readCount < count) && SCI_isDataAvailableNonFIFO(SCIA_BASE))
+    while(readCount < count)
     {
-        *bufPtr = SCI_readCharNonBlocking(SCIA_BASE);
+        if(SCI_isFIFOEnabled(SCIA_BASE))
+        {
+            if(SCI_getRxFIFOStatus(SCIA_BASE) == SCI_FIFO_RX0)
+            {
+                break;
+            }
+        }
+        else
+        {
+            if(!SCI_isDataAvailableNonFIFO(SCIA_BASE))
+            {
+                break;
+            }
+        }
+
+        uint16_t val = SCI_readCharNonBlocking(SCIA_BASE);
+        *bufPtr = (uint8_t)(val & 0xFFU);
         readCount++;
         bufPtr++;
+        g_scia_rx_count++; // increment global counter for debugger watch
     }
 
 //    while((readCount < count) && SciaRegs.SCIRXST.bit.RXRDY)
@@ -134,7 +153,7 @@ int SCI_read(int dev_fd, char * buf, unsigned count)
 int SCI_write(int dev_fd, const char * buf, unsigned count)
 {
     uint16_t writeCount = 0;
-    uint16_t * bufPtr = (uint16_t *) buf;
+    const uint8_t * bufPtr = (const uint8_t *) buf;
     
     if(count == 0)
     {
@@ -143,7 +162,7 @@ int SCI_write(int dev_fd, const char * buf, unsigned count)
     
     while(writeCount < count)
     {
-        SCI_writeCharBlockingNonFIFO(SCIA_BASE, *bufPtr);
+        SCI_writeCharBlockingNonFIFO(SCIA_BASE, (uint16_t)(*bufPtr));
         writeCount++;
         bufPtr++;
     }
@@ -181,6 +200,12 @@ int SCI_unlink(const char * path)
 int SCI_rename(const char * old_name, const char * new_name)
 {
     return (0);    
+}
+
+// Accessor implementation for debugger visibility
+uint32_t get_scia_rx_count(void)
+{
+    return g_scia_rx_count;
 }
 
 //

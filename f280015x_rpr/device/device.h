@@ -194,6 +194,8 @@ extern "C"
 #define DEVICE_GPIO_CFG_MCANRXA    GPIO_30_MCAN_RX  // "pinConfig" for MCAN RX
 #define DEVICE_GPIO_CFG_MCANTXA    GPIO_31_MCAN_TX  // "pinConfig" for MCAN TX
 
+#define SCI28
+#if defined(SCI28)
 //
 // SCI for USB-to-UART adapter on FTDI chip
 //
@@ -202,6 +204,17 @@ extern "C"
 #define DEVICE_GPIO_CFG_SCIRXDA     GPIO_28_SCIA_RX // "pinConfig" for SCI RX
 #define DEVICE_GPIO_CFG_SCITXDA     GPIO_29_SCIA_TX // "pinConfig" for SCI TX
 
+#else
+
+//
+// SCI for USB-to-UART adapter on FTDI chip
+//
+#define DEVICE_GPIO_PIN_SCIRXDA     35U             // GPIO number for SCI RX
+#define DEVICE_GPIO_PIN_SCITXDA     37U             // GPIO number for SCI TX
+#define DEVICE_GPIO_CFG_SCIRXDA     GPIO_35_SCIA_RX // "pinConfig" for SCI RX
+#define DEVICE_GPIO_CFG_SCITXDA     GPIO_37_SCIA_TX // "pinConfig" for SCI TX
+
+#endif
 //
 // I2C
 //
@@ -318,6 +331,13 @@ extern uint16_t RamfuncsLoadSize;
 extern uint16_t RamfuncsRunStart;
 extern uint16_t RamfuncsRunEnd;
 extern uint16_t RamfuncsRunSize;
+
+extern uint16_t isrcodefuncsLoadStart;
+extern uint16_t isrcodefuncsLoadEnd;
+extern uint16_t isrcodefuncsLoadSize;
+extern uint16_t isrcodefuncsRunStart;
+extern uint16_t isrcodefuncsRunEnd;
+extern uint16_t isrcodefuncsRunSize;
 #endif
 
 #endif

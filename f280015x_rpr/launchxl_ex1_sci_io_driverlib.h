@@ -48,9 +48,23 @@
 extern "C" {
 #endif
 
+// Standard integer types
+#include <stdint.h>
+
+// Ensure off_t exists on this embedded platform
+#ifndef _OFF_T_DEFINED
+typedef long off_t;
+#define _OFF_T_DEFINED
+#endif
+
 //
 // Globals
 //
+// Global receive counter for SCIA - incremented on each received char
+extern volatile uint32_t g_scia_rx_count;
+
+// Accessor to read the receive count (useful in debugger expressions)
+uint32_t get_scia_rx_count(void);
 
 // 
 // Function prototypes

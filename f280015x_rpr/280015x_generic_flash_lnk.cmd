@@ -67,7 +67,11 @@ SECTIONS
 #endif
 
 #if defined(__TI_EABI__)
-   .TI.ramfunc      : LOAD = FLASH_BANK0_SEC_0_7,
+        GROUP
+    {
+		.TI.ramfunc 
+          ramfuncs		
+   }   LOAD = FLASH_BANK0_SEC_0_7,
                       RUN = RAMLS0,
                       LOAD_START(RamfuncsLoadStart),
                       LOAD_SIZE(RamfuncsLoadSize),
@@ -76,6 +80,21 @@ SECTIONS
                       RUN_SIZE(RamfuncsRunSize),
                       RUN_END(RamfuncsRunEnd),
                       ALIGN(8)
+    GROUP
+    {
+        isrcodefuncs
+        dclfuncs
+    }    LOAD = FLASH_BANK0_SEC_96_103,
+         RUN =  RAMLS0,
+         LOAD_START(isrcodefuncsLoadStart),
+         LOAD_SIZE(isrcodefuncsLoadSize),
+         LOAD_END(isrcodefuncsLoadEnd),
+         RUN_START(isrcodefuncsRunStart),
+         RUN_SIZE(isrcodefuncsRunSize),
+         RUN_END(isrcodefuncsRunEnd),
+         PAGE = 0, ALIGN(4)
+	SFRA_F32_Data    : > RAMLS0, ALIGN = 64
+	FPUmathTables    : > FLASH_BANK0_SEC_120_127,   PAGE =0
 #else
    .TI.ramfunc      : LOAD = FLASH_BANK0_SEC_0_7,
                       RUN = RAMLS0,

@@ -15,12 +15,12 @@ extern "C" {
 //
 // Lab numbers defined in buck_user_settings.h
 //
-#define BUCK_LAB_NUMBER                    3
+#define BUCK_LAB_NUMBER                    4
 
 //
 // PWM Switching frequency and control update ratio
 //
-#define BUCK_DRV_EPWM_SWITCHING_FREQUENCY  ((float32_t)300 * 1000)
+#define BUCK_DRV_EPWM_SWITCHING_FREQUENCY  ((float32_t)50 * 1000)
 #define BUCK_ISR_CTRL_LOOP_RATIO           1
 
 //

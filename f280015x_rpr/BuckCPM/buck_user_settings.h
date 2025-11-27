@@ -417,8 +417,8 @@ extern "C" {
     #define BUCK_SFRA_ENABLED              false
 #endif
 
-#undef BUCK_SFRA_ENABLED
-#define BUCK_SFRA_ENABLED false
+//#undef BUCK_SFRA_ENABLED
+//#define BUCK_SFRA_ENABLED false
 
 #if(BUCK_SFRA_ENABLED == true)
     #define BUCK_SFRA_ISR_FREQ             BUCK_DRV_EPWM_SWITCHING_FREQUENCY

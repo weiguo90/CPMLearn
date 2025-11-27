@@ -20,6 +20,8 @@
 #include "driverlib.h"
 #include "device.h"
 #include "sfra_gui_scicomms_driverlib.h"
+// Include global counter declaration
+#include "launchxl_ex1_sci_io_driverlib.h"
 
 //
 // Function prototypes for Command RECEIVE State machine
@@ -323,14 +325,30 @@ void SFRA_GUI_runSerialHostComms(SFRA_F32 *sfra)
 //
 // Task 1
 //
+bool FFoEn=0;
+SCI_RxFIFOLevel  LevFFO=0;
+
 void SFRA_GUI_getCmdByte(void)
 {
     //
     // check if a char has been received
     //
-    if((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0)
+    FFoEn=SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr);
+    LevFFO=SCI_getRxFIFOStatus(SFRA_GUI_sci_base_addr);
+    if(FFoEn ?
+       (SCI_getRxFIFOStatus(SFRA_GUI_sci_base_addr) != SCI_FIFO_RX0) : 
+       ((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0))
     {
-        SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
+        if(SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr))
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingFIFO(SFRA_GUI_sci_base_addr);
+        }
+        else
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
+        }
+        // Increment global SCIA receive counter for debugger visibility
+        g_scia_rx_count++;
         //
         // point to next state
         //
@@ -414,10 +432,20 @@ void SFRA_GUI_getSizeByte(void)
     //
     // check if a char has been received
     //
-    if((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0)
+     if(SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr) ? 
+         (SCI_getRxFIFOStatus(SFRA_GUI_sci_base_addr) != SCI_FIFO_RX0) : 
+         ((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0))
     {
-        SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
-
+        if(SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr))
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingFIFO(SFRA_GUI_sci_base_addr);
+        }
+        else
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
+        }
+        // Increment global SCIA receive counter for debugger visibility
+        g_scia_rx_count++;
         //
         // point to next state
         //
@@ -475,9 +503,20 @@ void SFRA_GUI_getDataByte(void)
     //
     // check if a char has been received
     //
-    if((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0)
+    if(SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr) ? 
+       (SCI_getRxFIFOStatus(SFRA_GUI_sci_base_addr) != SCI_FIFO_RX0) : 
+       ((SCI_getRxStatus(SFRA_GUI_sci_base_addr) & SCI_RXSTATUS_READY ) != 0))
     {
-        SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
+        if(SCI_isFIFOEnabled(SFRA_GUI_sci_base_addr))
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingFIFO(SFRA_GUI_sci_base_addr);
+        }
+        else
+        {
+            SFRA_GUI_rxChar = SCI_readCharBlockingNonFIFO(SFRA_GUI_sci_base_addr);
+        }
+        // Increment global SCIA receive counter for debugger visibility
+        g_scia_rx_count++;
         //
         // point to next state
         //
